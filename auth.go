@@ -3,8 +3,8 @@ package esri
 import (
 	"fmt"
 
-	"net/url"
 	"encoding/json"
+	"net/url"
 )
 
 const (
@@ -24,7 +24,7 @@ func GetToken(username, password string) (*TokenResp, error) {
 	resp, err := request(generateTokenURL, url.Values{
 		"username": {username},
 		"password": {password},
-		"referer": {referer},
+		"referer":  {referer},
 	})
 
 	if err != nil {

@@ -2,8 +2,10 @@ package esri
 
 // Polygon is an esri Polygon
 type Polygon struct {
-	Rings      [][]Point `json:"rings"`
-	HasM       bool       `json:"hasM"`
-	HasZ       bool       `json:"hasZ"`
-	SpatialRef SpatialRef `json:"spatialRef"`
+	composedType
+	Rings [][][]float64 `json:"rings"`
+}
+
+func Type() string {
+	return "esriGeometryPolygon"
 }

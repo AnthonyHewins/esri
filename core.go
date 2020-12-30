@@ -8,27 +8,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/paulmach/orb/geojson"
 )
-
-// Form exposes some of the fields you need to query a feature layer
-// using the esri.Query function
-type Form struct {
-	Token string
-	Format         string
-	Where          string
-	OutFields      string
-	BufferDistance float64
-	Geometry       interface{}
-}
-
-type arcGISError struct {
-	Code        int    `json:"code"`
-	Description string `json:"description"`
-}
-
-func (e *arcGISError) Error() string {
-	return e.Description
-}
 
 // Query is a generic query against an ArcGIS layer. Authentication is
 // automatically handled using a global cached token.
@@ -55,13 +37,13 @@ func Query(endpoint string, form *Form) (*geojson.FeatureCollection, error) {
 	}
 
 	if form.Geometry != nil {
-		geometryType, buf, err := geojsonToEsri(form.Geometry)
+		buf, err := json.Marshal(form.Geometry)
 		if err != nil {
 			return nil, err
 		}
 
 		req.Add("geometry", string(buf))
-		req.Add("geometryType", geometryType)
+		req.Add("geometryType", form.Geometry.Type())
 	}
 
 	if form.BufferDistance != 0 {
