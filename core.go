@@ -8,19 +8,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-
-	"github.com/paulmach/orb/geojson"
 )
 
-// Query is a generic query against an ArcGIS layer. Authentication is
-// automatically handled using a global cached token.
+// Query is a generic query against an ArcGIS layer
 //
 // Defaults if you leave these form fields blank:
-// form.Geometry -> No geometry in the query
 // form.Format -> GeoJSON
 // form.Where -> 1=1
-// form.BufferDistance -> Use no buffer
-func Query(endpoint string, form *Form) (*geojson.FeatureCollection, error) {
+func Query(endpoint string, form *Form) ([]byte, error) {
 	if form.Where == "" {
 		form.Where = "1=1"
 	}
@@ -31,7 +26,7 @@ func Query(endpoint string, form *Form) (*geojson.FeatureCollection, error) {
 
 	req := url.Values{
 		"token":     {form.Token},
-		"outFields": {form.OutFields},
+		"outFields": {strings.Join(form.OutFields, ",")},
 		"f":         {form.Format},
 		"where":     {form.Where},
 	}
@@ -50,22 +45,17 @@ func Query(endpoint string, form *Form) (*geojson.FeatureCollection, error) {
 		req.Add("distance", fmt.Sprint(form.BufferDistance))
 	}
 
-	resp, err := request(endpoint, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return geojson.UnmarshalFeatureCollection(resp)
+	return request(endpoint, req)
 }
 
 func checkError(buf []byte) error {
 	var data map[string]interface{}
 	if err := json.Unmarshal(buf, &data); err != nil {
-		return err
+		return fmt.Errorf("While checking if the ArcGIS response has any errors, there was an error encountered: %v.\nRaw response: %v", err, string(buf))
 	}
 
 	if data["error"] != nil {
-		return fmt.Errorf("Error in AGOL request: %+v", string(buf))
+		return fmt.Errorf("Error in ArcGIS response: %+v", string(buf))
 	}
 
 	return nil
@@ -80,30 +70,29 @@ func request(endpoint string, form url.Values) ([]byte, error) {
 	defer httpResp.Body.Close()
 	resp, err := ioutil.ReadAll(httpResp.Body)
 
+	if err != nil {
+		return nil, fmt.Errorf(
+			"Failure reading response from %v with HTTP form %+v: %v.\nRaw response: %+v",
+			endpoint,
+			form,
+			err,
+			string(resp),
+		)
+	}
+
 	if httpResp.StatusCode != http.StatusOK {
 		var sb strings.Builder
 
-		sb.WriteString(fmt.Sprintf("received HTTP %v from ArcGIS, something went wrong. ", httpResp.StatusCode))
+		sb.WriteString(fmt.Sprintf("received HTTP %v from ArcGIS:", httpResp.StatusCode))
 
 		if err != nil {
-			sb.WriteString("Tried extracting payload, but there was an error reading the response body")
+			sb.WriteString(" tried extracting payload, but there was an error reading the response body")
 		} else {
-			sb.WriteString("Response body: " + string(resp))
+			sb.WriteString(" got response body: " + string(resp))
 		}
 
 		return nil, fmt.Errorf(sb.String())
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf(
-			"Failure making request to %v with HTTP form %+v: %v",
-			endpoint,
-			form,
-			err,
-		)
-	} else if err = checkError(resp); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return resp, checkError(resp)
 }
