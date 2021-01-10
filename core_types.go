@@ -50,19 +50,13 @@ type SpatialRef struct {
  LatestVCSWKID int `json:"latestVcsWkid"`
 }
 
-type composedType struct {
-	HasM       bool       `json:"hasM"`
-	HasZ       bool       `json:"hasZ"`
-	SpatialRef SpatialRef `json:"spatialRef"`
-}
-
-type WKID struct {
-	WKID int `json:"wkid"`
-	LatestWKID int `json:"latestWkid"`
-	VCSWKID int `json:"vcsWkid"`
-	LatestVCSWKID int `json:"latestVcsWkid"`
-}
-
-type WKT struct {
-	WKT string `json:"wkt"`
-}
+//type WKID struct {
+//	WKID int `json:"wkid"`
+//	LatestWKID int `json:"latestWkid"`
+//	VCSWKID int `json:"vcsWkid"`
+//	LatestVCSWKID int `json:"latestVcsWkid"`
+//}
+//
+//type WKT struct {
+//	WKT string `json:"wkt"`
+//}
