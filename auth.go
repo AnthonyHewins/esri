@@ -29,15 +29,15 @@ type Token struct {
 
 // Expired is a shorthand for telling whether or not a token is expired
 func (t Token) Expired() bool {
-	return !time.Now().Before(t)
+	return !time.Now().Before(t.Expires)
 }
 
-func GetToken(username, password string) (*TokenResp, error) {
+func GetToken(username, password string) (*Token, error) {
 	resp, err := request(generateTokenURL, url.Values{
 		"username": {username},
 		"password": {password},
 		"referer":  {referer},
-		"f": "json",
+		"f": {"json"},
 	})
 
 	if err != nil {
