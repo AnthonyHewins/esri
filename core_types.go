@@ -6,12 +6,6 @@ type EsriGeom interface {
 	Type() string
 }
 
-type Stat struct {
-	StatType StatType
-	OnStatField string
-	OutfieldName string
-}
-
 // Form exposes some of the fields you need to query a feature layer
 // using the esri.Query function
 type Form struct {
@@ -25,7 +19,6 @@ type Form struct {
 	RelationParam string
 	Time time.Time
 	BufferDistance float64
-	Units Unit
 	OutFields      []string
 	NoGeometry bool
 	MaxAllowableOffset int
@@ -38,7 +31,6 @@ type Form struct {
 	OnlyExtent bool
 	OrderBy []string
 	GroupByForStats []string
-	OutStats []Stat
 	ReturnZ bool
 	ReturnM bool
 	Offset int
@@ -49,6 +41,13 @@ type Form struct {
 	ReturnTrueCurves bool
 	Token          string
 	Format         string
+}
+
+type SpatialRef struct {
+ WKID int`json:"wkid"`
+ LatestWKID int `json:"latestWkid"`
+ VCSWKID int `json:"vcsWkid"`
+ LatestVCSWKID int `json:"latestVcsWkid"`
 }
 
 type composedType struct {
