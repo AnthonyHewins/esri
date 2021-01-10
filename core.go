@@ -10,39 +10,22 @@ import (
 	"net/url"
 )
 
+type ToValues interface{
+	ToValues() (url.Values, error)
+}
+
 // Query is a generic query against an ArcGIS layer
 //
 // Defaults if you leave these form fields blank:
 // form.Format -> GeoJSON
 // form.Where -> 1=1
-func Query(endpoint string, form *Form) ([]byte, error) {
-	if form.Where == "" {
-		form.Where = "1=1"
-	}
-
-	if form.Format == "" {
-		form.Format = "geojson"
-	}
-
-	req := url.Values{
-		"token":     {form.Token},
-		"outFields": {strings.Join(form.OutFields, ",")},
-		"f":         {form.Format},
-		"where":     {form.Where},
-	}
-
-	if form.Geometry != nil {
-		buf, err := json.Marshal(form.Geometry)
+func Query(endpoint string, form ToValues) ([]byte, error) {
+	var req url.Values
+	if form != nil {
+		req, err := form.ToValues()
 		if err != nil {
 			return nil, err
 		}
-
-		req.Add("geometry", string(buf))
-		req.Add("geometryType", form.Geometry.Type())
-	}
-
-	if form.BufferDistance != 0 {
-		req.Add("distance", fmt.Sprint(form.BufferDistance))
 	}
 
 	return request(endpoint, req)
