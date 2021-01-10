@@ -36,7 +36,7 @@ type Form struct {
 	Time               time.Time
 	BufferDistance     float64
 	OutFields          []string
-	NoGeometry         bool
+	ReturnNoGeometry         bool
 	MaxAllowableOffset int
 	geometryPrecision  int
 	OutSR              string
@@ -69,8 +69,12 @@ func (f Form) ToValues() (url.Values, error) {
 	}
 
 	req := url.Values{
-		"token":     {f.Token},
+		"token":     {f.Where},
 		"f": {string(f.Format)},
+	}
+
+	if f.Token != "" {
+		req.Add("token", f.Token)
 	}
 
 	if len(f.OutFields) > 0 {
