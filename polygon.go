@@ -8,6 +8,6 @@ type Polygon struct {
 	Rings [][][]float64 `json:"rings"`
 }
 
-func Type() string {
+func (p Polygon) Type() string {
 	return "esriGeometryPolygon"
 }
