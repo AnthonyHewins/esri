@@ -69,7 +69,7 @@ func (f Form) ToValues() (url.Values, error) {
 	}
 
 	req := url.Values{
-		"token":     {f.Where},
+		"where":     {f.Where},
 		"f": {string(f.Format)},
 	}
 
