@@ -2,7 +2,6 @@ package esri
 
 import (
 	"fmt"
-	"strings"
 
 	"encoding/json"
 	"io/ioutil"
