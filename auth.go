@@ -13,7 +13,7 @@ const (
 )
 
 var (
-	generateTokenURL = fmt.Sprintf("%v/sharing/rest/generateToken?f=json", referer)
+	generateTokenURL = fmt.Sprintf("%v/sharing/rest/generateToken", referer)
 )
 
 type tokenResp struct {
@@ -37,6 +37,7 @@ func GetToken(username, password string) (*TokenResp, error) {
 		"username": {username},
 		"password": {password},
 		"referer":  {referer},
+		"f": "json",
 	})
 
 	if err != nil {
