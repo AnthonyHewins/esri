@@ -73,6 +73,10 @@ func (f Form) ToValues() (url.Values, error) {
 		"f": {string(f.Format)},
 	}
 
+	if len(f.OutFields) > 0 {
+		req.Add("outFields", strings.Join(f.OutFields, ","))
+	}
+
 	if f.Geometry != nil {
 		buf, err := json.Marshal(f.Geometry)
 		if err != nil {

@@ -14,18 +14,20 @@ type ToValues interface{
 	ToValues() (url.Values, error)
 }
 
-// Query is a generic query against an ArcGIS layer
+// Query is a generic query against an ArcGIS layer. It will hit `endpoint` using a POST body
+// supplied by `form`. Implement the `ToValues` interface to create your own form, or use `esri.Form`
+// supplied by the package to make a request. Using `esri.Form` has the following defaults:
 //
-// Defaults if you leave these form fields blank:
 // form.Format -> GeoJSON
 // form.Where -> 1=1
 func Query(endpoint string, form ToValues) ([]byte, error) {
-	var req url.Values
-	if form != nil {
-		req, err := form.ToValues()
-		if err != nil {
-			return nil, err
-		}
+	if form == nil {
+		return request(endpoint, nil)
+	}
+
+	req, err := form.ToValues()
+	if err != nil {
+		return nil, err
 	}
 
 	return request(endpoint, req)
